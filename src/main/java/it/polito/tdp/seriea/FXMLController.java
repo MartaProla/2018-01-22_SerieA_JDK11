@@ -1,9 +1,12 @@
 package it.polito.tdp.seriea;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.seriea.model.Model;
+import it.polito.tdp.seriea.model.Season;
+import it.polito.tdp.seriea.model.Team;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -21,7 +24,7 @@ public class FXMLController {
     private URL location;
 
     @FXML
-    private ChoiceBox<?> boxSquadra;
+    private ChoiceBox<Team> boxSquadra;
 
     @FXML
     private Button btnSelezionaSquadra;
@@ -37,12 +40,24 @@ public class FXMLController {
 
     @FXML
     void doSelezionaSquadra(ActionEvent event) {
+    	Team t=this.boxSquadra.getValue();
+    	if(t==null) {
+    		txtResult.appendText("Errore, seleziona una squadra");
+    		return;
+    	}
+    	Map<Season, Integer>mappa=this.model.puntiSquadra(t);
+    	for(Season s: mappa.keySet()) {
+    		txtResult.appendText(String.format("%s: %d \n", s.getDescription(),mappa.get(s)));
+    	}
 
     }
 
     @FXML
     void doTrovaAnnataOro(ActionEvent event) {
-
+    	this.model.creaGrafo();
+    	txtResult.appendText("Annata d'oro");
+    	txtResult.appendText(this.model.getBest().getDescription());
+    	txtResult.appendText(" "+this.model.getDifferenzaPesiBest());
     }
 
     @FXML
@@ -62,5 +77,7 @@ public class FXMLController {
 
 	public void setModel(Model model) {
 		this.model = model;
+		this.boxSquadra.getItems().clear();
+		this.boxSquadra.getItems().addAll(this.model.getElencoSquadre());
 	}
 }
